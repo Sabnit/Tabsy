@@ -1,3 +1,7 @@
-.tabs-container {
+#category-items-container {
+  display: none;
+}
+
+#back-el {
   display: none;
 }

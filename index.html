@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,18 +7,21 @@
   </head>
   <body>
     <div class="container">
-      <input
+      <div id="category-input-field">
+
+        <input
         type="text"
         name="title"
         id="category"
         placeholder="Enter Category"
-      />
-      <button type="submit" id="add-category">Add Category</button>
+        />
+        <button type="submit" id="add-category">Add Category</button>
+      </div>
 
       <p>Category</p>
       <ul id="ul-category"></ul>
 
-      <div class="tabs-container">
+      <div id="category-items-container">
         <input
           type="title"
           name="urlTitle"
@@ -36,8 +38,10 @@
         <button type="submit" id="save-input">Save</button>
 
         <button type="submit" id="save-tab">Get Tab</button>
-        <p>Items</p>
         <ul id="ul-category-items"></ul>
+      </div>
+      <div class="back">
+        <p id="back-el">back</p>  
       </div>
     </div>
 
