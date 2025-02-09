@@ -106,6 +106,14 @@ saveUrlBtn.addEventListener("click", () => {
   urlInputEl.value = "";
 });
 
+// Get the active tab info
+fetchTabBtn.addEventListener("click", () => {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    urltitleInputEl.value = tabs[0].title;
+    urlInputEl.value = tabs[0].url;
+  });
+});
+
 // Back to category list
 backBtn.addEventListener("click", () => {
   categoryListEl.style.display = "block";
