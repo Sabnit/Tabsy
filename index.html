@@ -7,6 +7,9 @@
   </head>
   <body>
     <div class="container">
+      <div class="back">
+        <button id="back-btn" class="back-btn">⬅ Back</button>
+      </div>
         <!-- Category Section -->
       <div id="category-section">
         <input
@@ -18,7 +21,7 @@
         <button type="submit" id="add-category-btn">Add Category</button>
       </div>
 
-      <p>Category</p>
+      <p id="category-heading">Category</p>
       <ul id="category-list"></ul>
 
       <!-- Url Section -->
@@ -37,13 +40,10 @@
         />
 
         <button type="submit" id="save-url-btn">Save</button>
-
         <button type="submit" id="fetch-tab-btn">Get Tab</button>
         <ul id="url-list"></ul>
       </div>
-      <div class="back">
-        <button id="back-btn" class="back-btn">⬅ Back</button>
-      </div>
+      
     </div>
 
     <script src="./js/main.js" type="module"></script>
