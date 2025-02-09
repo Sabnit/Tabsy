@@ -11,18 +11,18 @@ const backBtn = document.getElementById("back-btn");
 const saveUrlBtn = document.getElementById("save-url-btn");
 const fetchTabBtn = document.getElementById("fetch-tab-btn");
 
-// ul elements`
+// List elements
 const categoryListEl = document.getElementById("category-list");
 const urlListEl = document.getElementById("url-list");
 
-// div element
+// Section containers
 const categorySection = document.getElementById("category-section");
 const urlSection = document.getElementById("url-section");
 
-// p element
+// Category heading
 const categoryHeading = document.getElementById("category-heading");
 
-// Initialize the lists
+// Initialize category list from the localStorage
 let categoryList = JSON.parse(localStorage.getItem("categoryList")) || [];
 
 function initializeApp() {
@@ -106,7 +106,7 @@ saveUrlBtn.addEventListener("click", () => {
   urlInputEl.value = "";
 });
 
-// Get the active tab info
+// URL category - Get the active tab info
 fetchTabBtn.addEventListener("click", () => {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     urltitleInputEl.value = tabs[0].title;
