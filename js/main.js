@@ -1,56 +1,52 @@
 import { createCategoryListEl, createTabsList } from "./utils.js";
 
 // Input fields
-const inputCategoryEl = document.getElementById("category");
+const categoryInput = document.getElementById("category");
 
 // Buttons
-const saveCategoryBtn = document.getElementById("add-category");
+const addCategoryBtn = document.getElementById("add-category-btn");
 
-// ul elements
-const categoryUlEl = document.getElementById("ul-category");
-const categoryItemsUlEl = document.getElementById("ul-category-items");
+// ul elements`
+const categoryListEl = document.getElementById("category-list");
+const urlListEl = document.getElementById("url-list");
 
 // div element
-const categoryInputContainer = document.getElementById("category-input-field");
-const categoryItemsContainer = document.getElementById(
-  "category-items-container"
-);
+const categorySection = document.getElementById("category-section");
+const urlSection = document.getElementById("url-section");
 
-const backEl = document.getElementById("back-el");
+const backBtn = document.getElementById("back-btn");
 
 // Initialize the lists
-let categoryList = [];
+let categoryList = JSON.parse(localStorage.getItem("categoryList")) || [];
 
-function main() {
-  categoryList = JSON.parse(localStorage.getItem("categoryList")) || [];
-
-  createCategoryListEl(categoryList, categoryUlEl);
-
-  let categoryItems = document.querySelectorAll("#ul-category li");
-
-  categoryItems.forEach((item) => {
-    item.addEventListener("click", () => {
-      categoryItems.forEach((el) => {
-        el.style.display = "none";
-      });
-      item.style.display = "block";
-      getCategoryItems(item.textContent);
-      backEl.style.display = "block";
-    });
-  });
+function initializeApp() {
+  createCategoryListEl(categoryList, categoryListEl);
 }
 
-function getCategoryItems(categoryName) {
-  let items = Object.entries(JSON.parse(localStorage.getItem(categoryName)));
+// ✅ Attach a single event listener to the parent `ul`
+categoryListEl.addEventListener("click", (event) => {
+  if (event.target.tagName === "LI") {
+    let categoryName = event.target.textContent;
 
-  createTabsList(items, categoryItemsUlEl);
-  categoryItemsContainer.style.display = "block";
-  categoryInputContainer.style.display = "none";
+    categoryListEl.style.display = "none";
+    backBtn.style.display = "block";
+    displayCategoryUrls(categoryName, urlListEl);
+  }
+});
+
+function displayCategoryUrls(categoryName, ulEl) {
+  let storedItems = Object.entries(
+    JSON.parse(localStorage.getItem(categoryName))
+  );
+
+  createTabsList(storedItems, ulEl);
+  urlSection.style.display = "block";
+  categorySection.style.display = "none";
 }
 
-// Category Section
-saveCategoryBtn.addEventListener("click", () => {
-  let categoryName = inputCategoryEl.value;
+// Save Category
+addCategoryBtn.addEventListener("click", () => {
+  let categoryName = categoryInput.value;
 
   // Validation
   if (!categoryName) {
@@ -60,21 +56,20 @@ saveCategoryBtn.addEventListener("click", () => {
 
   categoryList.push(categoryName);
 
-  createCategoryListEl(categoryList, categoryUlEl);
-
   localStorage.setItem("categoryList", JSON.stringify(categoryList));
-  localStorage.setItem(categoryName, "{}");
+  localStorage.setItem(categoryName, "{}"); // Store an empty object to prevent error
 
-  inputCategoryEl.value = "";
+  createCategoryListEl(categoryList, categoryListEl);
 
-  main();
+  categoryInput.value = "";
 });
 
-backEl.addEventListener("click", () => {
-  main();
-  categoryItemsContainer.style.display = "none";
-  backEl.style.display = "none";
-  categoryInputContainer.style.display = "block";
+// Back to category list
+backBtn.addEventListener("click", () => {
+  categoryListEl.style.display = "block";
+  urlSection.style.display = "none";
+  backBtn.style.display = "none";
+  categorySection.style.display = "block";
 });
 
-main();
+initializeApp();

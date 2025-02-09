@@ -7,41 +7,42 @@
   </head>
   <body>
     <div class="container">
-      <div id="category-input-field">
-
+        <!-- Category Section -->
+      <div id="category-section">
         <input
         type="text"
-        name="title"
+        name="category name"
         id="category"
         placeholder="Enter Category"
         />
-        <button type="submit" id="add-category">Add Category</button>
+        <button type="submit" id="add-category-btn">Add Category</button>
       </div>
 
       <p>Category</p>
-      <ul id="ul-category"></ul>
+      <ul id="category-list"></ul>
 
-      <div id="category-items-container">
+      <!-- Url Section -->
+      <div id="url-section">
         <input
           type="title"
           name="urlTitle"
-          id="url-title"
+          id="url-title-input"
           placeholder="Enter Title"
         />
         <input
           type="url"
           name="urlAddress"
-          id="url-address"
+          id="url-input"
           placeholder="Enter URL"
         />
 
-        <button type="submit" id="save-input">Save</button>
+        <button type="submit" id="save-url-btn">Save</button>
 
-        <button type="submit" id="save-tab">Get Tab</button>
-        <ul id="ul-category-items"></ul>
+        <button type="submit" id="fetch-tab-btn">Get Tab</button>
+        <ul id="url-list"></ul>
       </div>
       <div class="back">
-        <p id="back-el">back</p>  
+        <p id="back-btn">back</p>  
       </div>
     </div>
 
