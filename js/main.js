@@ -79,21 +79,24 @@ categoryListEl.addEventListener("click", (event) => {
 
 // Save Category
 addCategoryBtn.addEventListener("click", () => {
-  let categoryName = categoryInput.value;
+  let newCategory = categoryInput.value;
 
   // Validation
-  if (!categoryName) {
-    console.log("Category is empty");
+  if (!newCategory) {
+    console.log("Error: Category is empty");
     return;
   }
 
-  categoryList.push(categoryName);
+  // validation
+  if (categoryList.includes(newCategory)) {
+    console.log("Error: Same category exists");
+    return;
+  }
 
+  categoryList.push(newCategory);
   localStorage.setItem("categoryList", JSON.stringify(categoryList));
-  localStorage.setItem(categoryName, "{}"); // Store an empty object to prevent error
-
+  localStorage.setItem(newCategory, "{}"); // Store an empty object to prevent error
   createCategoryListEl(categoryList, categoryListEl);
-
   categoryInput.value = "";
 });
 
