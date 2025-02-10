@@ -120,14 +120,7 @@ fetchTabBtn.addEventListener("click", () => {
 });
 
 // Back to category list
-backBtn.addEventListener("click", () => {
-  categoryListEl.style.display = "block";
-  urlSection.style.display = "none";
-  backBtn.style.display = "none";
-  categorySection.style.display = "block";
-  categoryHeading.style.display = "block";
-  categoryHeading.textContent = "Category";
-});
+backBtn.addEventListener("click", renderCategoryList);
 
 function displayCategoryUrls(categoryName, ulEl) {
   let storedUrl = Object.entries(
@@ -137,6 +130,15 @@ function displayCategoryUrls(categoryName, ulEl) {
   createUrlList(storedUrl, ulEl);
   urlSection.style.display = "block";
   categorySection.style.display = "none";
+}
+
+function renderCategoryList() {
+  categoryListEl.style.display = "block";
+  urlSection.style.display = "none";
+  backBtn.style.display = "none";
+  categorySection.style.display = "block";
+  categoryHeading.style.display = "block";
+  categoryHeading.textContent = "Category";
 }
 
 initializeApp();
