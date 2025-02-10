@@ -32,6 +32,16 @@ function initializeApp() {
 }
 
 // Add new category
+<<<<<<< HEAD
+=======
+// With enter key
+categoryInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    createNewCategory();
+  }
+});
+
+>>>>>>> db1e7983e236981c09159785ff21c583037b7cc9
 // With Add Category button
 addCategoryBtn.addEventListener("click", createNewCategory);
 
