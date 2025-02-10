@@ -25,6 +25,10 @@ export function createUrlList(items, ulEl) {
     a.classList.add("tabList");
 
     li.appendChild(a);
+    li.innerHTML += `
+      <button class="edit-btn"> Edit</button> 
+      <button class="delete-btn"> Delete</button>`;
+
     ulEl.appendChild(li);
   }
 }
