@@ -31,7 +31,10 @@ function initializeApp() {
 
 categoryListEl.addEventListener("click", (event) => {
   if (event.target.tagName === "LI") {
-    let clickedCategory = event.target.textContent.split("\n")[0].trim();
+    let clickedCategory = event.target.textContent.trim().split("\n")[0];
+    let storedUrl = Object.entries(
+      JSON.parse(localStorage.getItem(clickedCategory))
+    );
 
     categoryListEl.style.display = "none";
     backBtn.style.display = "block";
@@ -49,7 +52,25 @@ categoryListEl.addEventListener("click", (event) => {
     categoryHeading
       .querySelector(".delete-btn")
       .addEventListener("click", () => {
-        console.log("delete btn clicked");
+        if (storedUrl.length == 0) {
+          const findCategoryIndex = categoryList.findIndex(
+            (item) => item == clickedCategory
+          );
+
+          categoryList.splice(findCategoryIndex, 1);
+
+          localStorage.removeItem(clickedCategory);
+
+          localStorage.removeItem("categoryList");
+
+          localStorage.setItem("categoryList", JSON.stringify(categoryList));
+
+          createCategoryListEl(categoryList, categoryListEl);
+
+          renderCategoryList();
+        } else {
+          console.log("Error: list is not empty");
+        }
       });
 
     displayCategoryUrls(clickedCategory, urlListEl);
