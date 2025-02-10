@@ -31,25 +31,30 @@ function initializeApp() {
 
 categoryListEl.addEventListener("click", (event) => {
   if (event.target.tagName === "LI") {
-    let categoryName = event.target.textContent;
+    let clickedCategory = event.target.textContent.split("\n")[0].trim();
 
     categoryListEl.style.display = "none";
     backBtn.style.display = "block";
 
-    categoryHeading.textContent = categoryName;
-    displayCategoryUrls(categoryName, urlListEl);
+    categoryHeading.innerHTML = `
+    ${clickedCategory}
+    <button class="edit-btn"> Edit</button>
+    <button class="delete-btn"> Delete</button>
+    `;
+
+    categoryHeading.querySelector(".edit-btn").addEventListener("click", () => {
+      console.log("edit btn clicked");
+    });
+
+    categoryHeading
+      .querySelector(".delete-btn")
+      .addEventListener("click", () => {
+        console.log("delete btn clicked");
+      });
+
+    displayCategoryUrls(clickedCategory, urlListEl);
   }
 });
-
-function displayCategoryUrls(categoryName, ulEl) {
-  let storedUrl = Object.entries(
-    JSON.parse(localStorage.getItem(categoryName))
-  );
-
-  createUrlList(storedUrl, ulEl);
-  urlSection.style.display = "block";
-  categorySection.style.display = "none";
-}
 
 // Save Category
 addCategoryBtn.addEventListener("click", () => {
@@ -75,7 +80,7 @@ addCategoryBtn.addEventListener("click", () => {
 saveUrlBtn.addEventListener("click", () => {
   let titleInput = urltitleInputEl.value;
   let urlInput = urlInputEl.value;
-  let activeCategory = categoryHeading.textContent;
+  let activeCategory = categoryHeading.textContent.trim().split("\n")[0];
 
   // validator
   if (!titleInput || !urlInput) {
@@ -123,5 +128,15 @@ backBtn.addEventListener("click", () => {
   categoryHeading.style.display = "block";
   categoryHeading.textContent = "Category";
 });
+
+function displayCategoryUrls(categoryName, ulEl) {
+  let storedUrl = Object.entries(
+    JSON.parse(localStorage.getItem(categoryName))
+  );
+
+  createUrlList(storedUrl, ulEl);
+  urlSection.style.display = "block";
+  categorySection.style.display = "none";
+}
 
 initializeApp();
