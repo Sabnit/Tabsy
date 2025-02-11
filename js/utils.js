@@ -26,8 +26,8 @@ export function createUrlList(items, ulEl) {
 
     li.appendChild(a);
     li.innerHTML += `
-      <button class="edit-btn"> Edit</button> 
-      <button class="delete-btn"> Delete</button>`;
+      <button class="edit-url-btn"> Edit</button> 
+      <button class="delete-url-btn"> Delete</button>`;
 
     ulEl.appendChild(li);
   }
@@ -41,4 +41,11 @@ export function checkValidUrl(string) {
   } catch (err) {
     return false;
   }
+}
+
+export function addUrlToLocalStorage(categoryName, urlArray) {
+  localStorage.setItem(
+    categoryName,
+    JSON.stringify(Object.fromEntries(urlArray))
+  );
 }

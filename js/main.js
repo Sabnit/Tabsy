@@ -1,4 +1,9 @@
-import { createCategoryListEl, createUrlList, checkValidUrl } from "./utils.js";
+import {
+  createCategoryListEl,
+  createUrlList,
+  checkValidUrl,
+  addUrlToLocalStorage,
+} from "./utils.js";
 
 // Input fields
 const categoryInput = document.getElementById("category");
@@ -112,10 +117,8 @@ saveUrlBtn.addEventListener("click", () => {
 
   storedUrl.push([titleInput, urlInput]);
   createUrlList(storedUrl, urlListEl);
-  localStorage.setItem(
-    activeCategory,
-    JSON.stringify(Object.fromEntries(storedUrl))
-  );
+
+  addUrlToLocalStorage(activeCategory, storedUrl);
 });
 
 // Get the active tab info
@@ -124,6 +127,42 @@ fetchTabBtn.addEventListener("click", () => {
     urltitleInputEl.value = tabs[0].title;
     urlInputEl.value = tabs[0].url;
   });
+});
+
+// Edit and Delete URL
+urlListEl.addEventListener("click", (event) => {
+  let clickedUrl = event.target.closest("li");
+  let activeCategory = categoryHeading.textContent.trim().split("\n")[0];
+  let selectedUrl = clickedUrl.textContent.trim().split("\n")[0];
+
+  let storedUrl = Object.entries(
+    JSON.parse(localStorage.getItem(activeCategory))
+  );
+
+  console.log(storedUrl);
+
+  // Edit button
+  if (event.target.classList.contains("edit-url-btn")) {
+    console.log(`edit button: ${selectedUrl}`);
+  }
+
+  // Delete button
+  if (event.target.classList.contains("delete-url-btn")) {
+    console.log(`delete button: ${selectedUrl}`);
+    let findUrlTitleIndex = storedUrl.findIndex(
+      (item) => item[0] == selectedUrl
+    );
+
+    storedUrl.splice(findUrlTitleIndex, 1);
+
+    localStorage.removeItem(activeCategory);
+
+    addUrlToLocalStorage(activeCategory, storedUrl);
+
+    displayCategoryUrls(activeCategory, urlListEl);
+
+    console.log(storedUrl);
+  }
 });
 
 // Return back to Categories
@@ -166,6 +205,9 @@ function displayCategoryUrls(categoryName, ulEl) {
   let storedUrl = Object.entries(
     JSON.parse(localStorage.getItem(categoryName))
   );
+
+  console.log(storedUrl);
+
   createUrlList(storedUrl, ulEl);
   urlSection.style.display = "block";
   categorySection.style.display = "none";
