@@ -43,6 +43,37 @@ export function checkValidUrl(string) {
   }
 }
 
+// Create input fields, edit and delete buttons when editing an url
+export function handleEditUrl(selectedUrl) {
+  let urlTitleInput = document.createElement("input");
+  let urlInput = document.createElement("input");
+  let saveBtn = document.createElement("button");
+  let cancelBtn = document.createElement("button");
+
+  urlTitleInput.setAttribute("id", "edit-url-title");
+  urlInput.setAttribute("id", "edit-url");
+  saveBtn.setAttribute("id", "save-updated-url-btn");
+  saveBtn.textContent = "Save";
+  cancelBtn.setAttribute("id", "cancel-update-url");
+  cancelBtn.textContent = "Cancel";
+
+  selectedUrl.appendChild(urlTitleInput);
+  selectedUrl.appendChild(urlInput);
+  selectedUrl.appendChild(saveBtn);
+  selectedUrl.appendChild(cancelBtn);
+}
+
+// Find the url index in the url list
+export function findUrlIndex(urlList, url) {
+  return urlList.findIndex((item) => item[0] == url);
+}
+
+// Retrieve stored URLS for the active category from localStorage
+export function retreiveURLsFromLocalStorage(category) {
+  return Object.entries(JSON.parse(localStorage.getItem(category)));
+}
+
+// Update the category's urls in localStorage
 export function addUrlToLocalStorage(categoryName, urlArray) {
   localStorage.setItem(
     categoryName,

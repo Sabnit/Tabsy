@@ -3,6 +3,9 @@ import {
   createUrlList,
   checkValidUrl,
   addUrlToLocalStorage,
+  handleEditUrl,
+  findUrlIndex,
+  retreiveURLsFromLocalStorage,
 } from "./utils.js";
 
 // Input fields
@@ -27,8 +30,11 @@ const urlSection = document.getElementById("url-section");
 // Category heading
 const categoryHeading = document.getElementById("category-heading");
 
-// Initialize category list from the localStorage
+// Get the categories list from the localStorage
 let categoryList = JSON.parse(localStorage.getItem("categoryList")) || [];
+
+// Flag to track if url is being edited
+let editUrlFlag = false;
 
 // Category Section
 // Display categories list
@@ -51,9 +57,8 @@ addCategoryBtn.addEventListener("click", createNewCategory);
 categoryListEl.addEventListener("click", (event) => {
   if (event.target.tagName === "LI") {
     let clickedCategory = event.target.textContent.trim().split("\n")[0];
-    let storedUrl = Object.entries(
-      JSON.parse(localStorage.getItem(clickedCategory))
-    );
+    let storedUrl = retreiveURLsFromLocalStorage(clickedCategory);
+
     categoryListEl.style.display = "none";
     backBtn.style.display = "block";
 
@@ -96,9 +101,7 @@ saveUrlBtn.addEventListener("click", () => {
   let titleInput = urltitleInputEl.value;
   let urlInput = urlInputEl.value;
   let activeCategory = categoryHeading.textContent.trim().split("\n")[0];
-  let storedUrl = Object.entries(
-    JSON.parse(localStorage.getItem(activeCategory))
-  );
+  let storedUrl = retreiveURLsFromLocalStorage(activeCategory);
 
   // validator
   if (!titleInput || !urlInput) {
@@ -129,39 +132,62 @@ fetchTabBtn.addEventListener("click", () => {
   });
 });
 
-// Edit and Delete URL
+// Handle edit and delete functionality of URLs
 urlListEl.addEventListener("click", (event) => {
+  // Identify the clicked URL and its category
   let clickedUrl = event.target.closest("li");
   let activeCategory = categoryHeading.textContent.trim().split("\n")[0];
   let selectedUrl = clickedUrl.textContent.trim().split("\n")[0];
 
-  let storedUrl = Object.entries(
-    JSON.parse(localStorage.getItem(activeCategory))
-  );
-
+  // Retreive stored URLS for the active category from localStorage
+  let storedUrl = retreiveURLsFromLocalStorage(activeCategory);
   console.log(storedUrl);
 
-  // Edit button
+  // Handle URL editing (Ensures only one URL can be edited at a time)
   if (event.target.classList.contains("edit-url-btn")) {
-    console.log(`edit button: ${selectedUrl}`);
+    let urlIndex = findUrlIndex(storedUrl, selectedUrl);
+
+    // Prevent multiple edits at the same time
+    if (editUrlFlag) {
+      console.log("Error: An url is using edit function");
+      return;
+    }
+    editUrlFlag = true;
+
+    handleEditUrl(clickedUrl);
+
+    const urlTitle = clickedUrl.querySelector("#edit-url-title");
+    const url = clickedUrl.querySelector("#edit-url");
+    const saveEditedUrlBtn = clickedUrl.querySelector("#save-updated-url-btn");
+    const cancelEditedUrlBtn = clickedUrl.querySelector("#cancel-update-url");
+
+    // Populate input fields with existing URL details
+    urlTitle.value = storedUrl[urlIndex][0];
+    url.value = storedUrl[urlIndex][1];
+
+    // Save the updated URL details
+    saveEditedUrlBtn.addEventListener("click", () => {
+      editUrlFlag = false; //Reset flag after saving
+      storedUrl[urlIndex] = [urlTitle.value, url.value];
+      localStorage.removeItem(activeCategory);
+      addUrlToLocalStorage(activeCategory, storedUrl);
+      displayCategoryUrls(activeCategory, urlListEl);
+    });
+
+    // Cancel changing the url details
+    cancelEditedUrlBtn.addEventListener("click", () => {
+      editUrlFlag = false; //Reset flag after saving
+      displayCategoryUrls(activeCategory, urlListEl);
+    });
   }
 
-  // Delete button
+  // Handle removing of URL
   if (event.target.classList.contains("delete-url-btn")) {
-    console.log(`delete button: ${selectedUrl}`);
-    let findUrlTitleIndex = storedUrl.findIndex(
-      (item) => item[0] == selectedUrl
-    );
-
-    storedUrl.splice(findUrlTitleIndex, 1);
-
+    let urlIndex = findUrlIndex(storedUrl, selectedUrl);
+    storedUrl.splice(urlIndex, 1);
     localStorage.removeItem(activeCategory);
-
     addUrlToLocalStorage(activeCategory, storedUrl);
-
     displayCategoryUrls(activeCategory, urlListEl);
-
-    console.log(storedUrl);
   }
 });
 
@@ -202,11 +228,7 @@ function createNewCategory() {
 
 // Render URLS
 function displayCategoryUrls(categoryName, ulEl) {
-  let storedUrl = Object.entries(
-    JSON.parse(localStorage.getItem(categoryName))
-  );
-
-  console.log(storedUrl);
+  let storedUrl = retreiveURLsFromLocalStorage(categoryName);
 
   createUrlList(storedUrl, ulEl);
   urlSection.style.display = "block";
