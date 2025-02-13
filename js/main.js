@@ -180,11 +180,17 @@ function handleUrlClick(event) {
     });
   }
 
-  // Handle removing of URL
+  // Handle removing URL
   if (event.target.classList.contains("delete-url-btn")) {
+    if (isEditingUrl) {
+      console.log("Error: url is being edited");
+      return;
+    }
+
     storedUrl.splice(urlIndex, 1);
     addUrlToLocalStorage(activeCategory, storedUrl);
     renderCategoryUrls(activeCategory, urlListEl);
+    isEditingUrl = false;
   }
 }
 
