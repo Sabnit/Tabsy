@@ -9,6 +9,9 @@ import {
   findCategoryIndex,
   extractFirstLine,
   isUniqueUrlTitle,
+  createEditCategoryFields,
+  isUniqueCategory,
+  addCategoryToLocalStorage,
 } from "./utils.js";
 
 // Input fields
@@ -55,16 +58,45 @@ function displayCategoryUrls(categoryName) {
 
   categoryHeading.innerHTML = `
     ${categoryName}
-    <button class="edit-btn"> Edit</button>
-    <button class="delete-btn"> Delete</button>
+    <button class="edit-category-btn"> Edit</button>
+    <button class="delete-category-btn"> Delete</button>
     `;
 
-  categoryHeading.querySelector(".edit-btn").addEventListener("click", () => {
-    console.log("edit btn clicked");
-  });
+  categoryHeading
+    .querySelector(".edit-category-btn")
+    .addEventListener("click", () => {
+      createEditCategoryFields(categoryHeading);
+
+      let editCategoryInput = categoryHeading.querySelector("#category-input");
+
+      editCategoryInput.value = categoryName;
+
+      categoryHeading
+        .querySelector("#category-save-btn")
+        .addEventListener("click", () => {
+          let editCategoryInputValue = editCategoryInput.value.trim();
+
+          console.log("saved");
+          if (!isUniqueCategory(categoryList, editCategoryInputValue)) return;
+
+          let categoryIndex = findCategoryIndex(categoryList, categoryName);
+
+          // Update the edited category name in categoryList
+          categoryList[categoryIndex] = editCategoryInputValue;
+          addCategoryToLocalStorage(categoryList);
+
+          // Get URLs of the edited category
+          let editedCategoryUrls = retreiveURLsFromLocalStorage(categoryName);
+          localStorage.removeItem(categoryName);
+
+          addUrlToLocalStorage(editCategoryInputValue, editedCategoryUrls);
+
+          displayCategoryUrls(editCategoryInputValue);
+        });
+    });
 
   categoryHeading
-    .querySelector(".delete-btn")
+    .querySelector(".delete-category-btn")
     .addEventListener("click", () => deleteCategory(categoryName));
   renderCategoryUrls(categoryName, urlListEl);
 }
@@ -83,7 +115,6 @@ function deleteCategory(categoryName) {
     localStorage.removeItem("categoryList");
     localStorage.setItem("categoryList", JSON.stringify(categoryList));
 
-    createCategoryListEl(categoryList, categoryListEl);
     toggleCategoryView();
   } else {
     console.log("Error: list is not empty");
@@ -209,6 +240,7 @@ function toggleCategoryView() {
   categorySection.style.display = "block";
   categoryHeading.style.display = "block";
   categoryHeading.textContent = "Category";
+  initializeApp();
 }
 
 /**
@@ -226,8 +258,9 @@ function createNewCategory() {
     console.log("Error: Same category exists");
     return;
   }
+
   categoryList.push(newCategory);
-  localStorage.setItem("categoryList", JSON.stringify(categoryList));
+  addCategoryToLocalStorage(categoryList);
   localStorage.setItem(newCategory, "{}"); // Store an empty object to prevent error
   createCategoryListEl(categoryList, categoryListEl);
   categoryInput.value = "";

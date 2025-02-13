@@ -63,6 +63,23 @@ export function createEditUrlFields(selectedUrl) {
   selectedUrl.appendChild(cancelBtn);
 }
 
+// Create input fields, edit and delete buttons when editing an category
+export function createEditCategoryFields(selectedUrl) {
+  let editCategoryInput = document.createElement("input");
+  let saveBtn = document.createElement("button");
+  let cancelBtn = document.createElement("button");
+
+  editCategoryInput.setAttribute("id", "category-input");
+  saveBtn.setAttribute("id", "category-save-btn");
+  saveBtn.textContent = "Save";
+  cancelBtn.setAttribute("id", "cancel-category-edit-btn");
+  cancelBtn.textContent = "Cancel";
+
+  selectedUrl.appendChild(editCategoryInput);
+  selectedUrl.appendChild(saveBtn);
+  selectedUrl.appendChild(cancelBtn);
+}
+
 // Find the url index in the url list
 export function findUrlIndex(urlList, url) {
   return urlList.findIndex((item) => item[0] == url);
@@ -85,12 +102,16 @@ export function addUrlToLocalStorage(categoryName, urlArray) {
   );
 }
 
+export function addCategoryToLocalStorage(categories) {
+  localStorage.setItem("categoryList", JSON.stringify(categories));
+}
+
 // Extracts the first line from a given text after trimming whitespace
 export function extractFirstLine(text) {
   return text.trim().split("\n")[0];
 }
 
-// Check unique url title from urls
+// Check unique URL title from urls
 export function isUniqueUrlTitle(urls, title) {
   for (let i = 0; i < urls.length; i++) {
     if (urls[i].includes(title)) {
@@ -99,4 +120,13 @@ export function isUniqueUrlTitle(urls, title) {
     }
   }
   return true; // title is unique
+}
+
+// Check unique category from categoryList
+export function isUniqueCategory(categories, categoryName) {
+  if (categories.includes(categoryName)) {
+    console.log("same category exists");
+    return false;
+  }
+  return true;
 }
