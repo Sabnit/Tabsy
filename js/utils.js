@@ -44,7 +44,7 @@ export function checkValidUrl(string) {
 }
 
 // Create input fields, edit and delete buttons when editing an url
-export function handleEditUrl(selectedUrl) {
+export function createEditUrlFields(selectedUrl) {
   let urlTitleInput = document.createElement("input");
   let urlInput = document.createElement("input");
   let saveBtn = document.createElement("button");
@@ -68,6 +68,10 @@ export function findUrlIndex(urlList, url) {
   return urlList.findIndex((item) => item[0] == url);
 }
 
+export function findCategoryIndex(categoryList, categoryName) {
+  return categoryList.findIndex((item) => item == categoryName);
+}
+
 // Retrieve stored URLS for the active category from localStorage
 export function retreiveURLsFromLocalStorage(category) {
   return Object.entries(JSON.parse(localStorage.getItem(category)));
@@ -79,4 +83,8 @@ export function addUrlToLocalStorage(categoryName, urlArray) {
     categoryName,
     JSON.stringify(Object.fromEntries(urlArray))
   );
+}
+
+export function extractFirstLine(text) {
+  return text.trim().split("\n")[0];
 }

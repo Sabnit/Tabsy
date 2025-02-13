@@ -3,9 +3,11 @@ import {
   createUrlList,
   checkValidUrl,
   addUrlToLocalStorage,
-  handleEditUrl,
+  createEditUrlFields,
   findUrlIndex,
   retreiveURLsFromLocalStorage,
+  findCategoryIndex,
+  extractFirstLine,
 } from "./utils.js";
 
 // Input fields
@@ -34,73 +36,66 @@ const categoryHeading = document.getElementById("category-heading");
 let categoryList = JSON.parse(localStorage.getItem("categoryList")) || [];
 
 // Flag to track if url is being edited
-let editUrlFlag = false;
+let isEditingUrl = false;
 
-// Category Section
-// Display categories list
+/**
+ * Initialize the app
+ */
 function initializeApp() {
   createCategoryListEl(categoryList, categoryListEl);
 }
 
-// Add new category
-// With enter key
-categoryInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    createNewCategory();
-  }
-});
+/**
+ * Handles displaying URLs of a selected Category
+ */
+function displayCategoryUrls(categoryName) {
+  categoryListEl.style.display = "none";
+  backBtn.style.display = "block";
 
-// With Add Category button
-addCategoryBtn.addEventListener("click", createNewCategory);
-
-// Display category URLs list
-categoryListEl.addEventListener("click", (event) => {
-  if (event.target.tagName === "LI") {
-    let clickedCategory = event.target.textContent.trim().split("\n")[0];
-    let storedUrl = retreiveURLsFromLocalStorage(clickedCategory);
-
-    categoryListEl.style.display = "none";
-    backBtn.style.display = "block";
-
-    categoryHeading.innerHTML = `
-    ${clickedCategory}
+  categoryHeading.innerHTML = `
+    ${categoryName}
     <button class="edit-btn"> Edit</button>
     <button class="delete-btn"> Delete</button>
     `;
 
-    categoryHeading.querySelector(".edit-btn").addEventListener("click", () => {
-      console.log("edit btn clicked");
-    });
+  categoryHeading.querySelector(".edit-btn").addEventListener("click", () => {
+    console.log("edit btn clicked");
+  });
 
-    categoryHeading
-      .querySelector(".delete-btn")
-      .addEventListener("click", () => {
-        if (storedUrl.length == 0) {
-          const findCategoryIndex = categoryList.findIndex(
-            (item) => item == clickedCategory
-          );
+  categoryHeading
+    .querySelector(".delete-btn")
+    .addEventListener("click", () => deleteCategory(categoryName));
+  renderCategoryUrls(categoryName, urlListEl);
+}
 
-          categoryList.splice(findCategoryIndex, 1);
-          localStorage.removeItem(clickedCategory);
-          localStorage.removeItem("categoryList");
-          localStorage.setItem("categoryList", JSON.stringify(categoryList));
+/**
+ * Handles deleting a category
+ */
+function deleteCategory(categoryName) {
+  let storedUrl = retreiveURLsFromLocalStorage(categoryName);
 
-          createCategoryListEl(categoryList, categoryListEl);
-          renderCategoryList();
-        } else {
-          console.log("Error: list is not empty");
-        }
-      });
-    displayCategoryUrls(clickedCategory, urlListEl);
+  if (storedUrl.length == 0) {
+    const categoryIndex = findCategoryIndex(categoryList, categoryName);
+
+    categoryList.splice(categoryIndex, 1);
+    localStorage.removeItem(categoryName);
+    localStorage.removeItem("categoryList");
+    localStorage.setItem("categoryList", JSON.stringify(categoryList));
+
+    createCategoryListEl(categoryList, categoryListEl);
+    toggleCategoryView();
+  } else {
+    console.log("Error: list is not empty");
   }
-});
+}
 
-// URL Section
-// Add new url
-saveUrlBtn.addEventListener("click", () => {
+/**
+ * Handles adding a new URL
+ */
+function addNewUrl() {
   let titleInput = urltitleInputEl.value;
   let urlInput = urlInputEl.value;
-  let activeCategory = categoryHeading.textContent.trim().split("\n")[0];
+  let activeCategory = extractFirstLine(categoryHeading.textContent);
   let storedUrl = retreiveURLsFromLocalStorage(activeCategory);
 
   // validator
@@ -122,39 +117,44 @@ saveUrlBtn.addEventListener("click", () => {
   createUrlList(storedUrl, urlListEl);
 
   addUrlToLocalStorage(activeCategory, storedUrl);
-});
+}
 
-// Get the active tab info
-fetchTabBtn.addEventListener("click", () => {
+/**
+ * Handles fetching the active browser tab's URL
+ */
+function fetchActiveTab() {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     urltitleInputEl.value = tabs[0].title;
     urlInputEl.value = tabs[0].url;
   });
-});
+}
 
-// Handle edit and delete functionality of URLs
-urlListEl.addEventListener("click", (event) => {
+/**
+ * Handles editing and deleting URLs
+ */
+function handleUrlClick(event) {
   // Identify the clicked URL and its category
   let clickedUrl = event.target.closest("li");
-  let activeCategory = categoryHeading.textContent.trim().split("\n")[0];
-  let selectedUrl = clickedUrl.textContent.trim().split("\n")[0];
+  let selectedUrl = extractFirstLine(clickedUrl.textContent);
+  let activeCategory = extractFirstLine(categoryHeading.textContent);
 
   // Retreive stored URLS for the active category from localStorage
   let storedUrl = retreiveURLsFromLocalStorage(activeCategory);
-  console.log(storedUrl);
+
+  // Retreive the index of the url
+  let urlIndex = findUrlIndex(storedUrl, selectedUrl);
 
   // Handle URL editing (Ensures only one URL can be edited at a time)
   if (event.target.classList.contains("edit-url-btn")) {
-    let urlIndex = findUrlIndex(storedUrl, selectedUrl);
-
     // Prevent multiple edits at the same time
-    if (editUrlFlag) {
+    if (isEditingUrl) {
       console.log("Error: An url is using edit function");
       return;
     }
-    editUrlFlag = true;
+    isEditingUrl = true;
 
-    handleEditUrl(clickedUrl);
+    // Create input fields and Save and Delete buttons for editing
+    createEditUrlFields(clickedUrl);
 
     const urlTitle = clickedUrl.querySelector("#edit-url-title");
     const url = clickedUrl.querySelector("#edit-url");
@@ -167,36 +167,32 @@ urlListEl.addEventListener("click", (event) => {
 
     // Save the updated URL details
     saveEditedUrlBtn.addEventListener("click", () => {
-      editUrlFlag = false; //Reset flag after saving
+      isEditingUrl = false; //Reset flag after saving
       storedUrl[urlIndex] = [urlTitle.value, url.value];
-      localStorage.removeItem(activeCategory);
       addUrlToLocalStorage(activeCategory, storedUrl);
-      displayCategoryUrls(activeCategory, urlListEl);
+      renderCategoryUrls(activeCategory, urlListEl);
     });
 
     // Cancel changing the url details
     cancelEditedUrlBtn.addEventListener("click", () => {
-      editUrlFlag = false; //Reset flag after saving
-      displayCategoryUrls(activeCategory, urlListEl);
+      isEditingUrl = false; //Reset flag after saving
+      renderCategoryUrls(activeCategory, urlListEl);
     });
   }
 
   // Handle removing of URL
   if (event.target.classList.contains("delete-url-btn")) {
-    let urlIndex = findUrlIndex(storedUrl, selectedUrl);
     storedUrl.splice(urlIndex, 1);
-    localStorage.removeItem(activeCategory);
     addUrlToLocalStorage(activeCategory, storedUrl);
-    displayCategoryUrls(activeCategory, urlListEl);
+    renderCategoryUrls(activeCategory, urlListEl);
   }
-});
+}
 
-// Return back to Categories
-backBtn.addEventListener("click", renderCategoryList);
-
-// Helper functions
-// Render Categories
-function renderCategoryList() {
+/**
+ * Display the category list and hide other sections
+ */
+function toggleCategoryView() {
+  isEditingUrl = false;
   categoryListEl.style.display = "block";
   urlSection.style.display = "none";
   backBtn.style.display = "none";
@@ -205,9 +201,11 @@ function renderCategoryList() {
   categoryHeading.textContent = "Category";
 }
 
-// Create new Category
+/**
+ * Handle adding a new category
+ */
 function createNewCategory() {
-  let newCategory = categoryInput.value;
+  let newCategory = categoryInput.value.trim();
   // Validation
   if (!newCategory) {
     console.log("Error: Category is empty");
@@ -226,13 +224,33 @@ function createNewCategory() {
   categoryInput.focus();
 }
 
-// Render URLS
-function displayCategoryUrls(categoryName, ulEl) {
+/**
+ * Render URLs of a specific category
+ */
+function renderCategoryUrls(categoryName, ulEl) {
   let storedUrl = retreiveURLsFromLocalStorage(categoryName);
-
   createUrlList(storedUrl, ulEl);
   urlSection.style.display = "block";
   categorySection.style.display = "none";
 }
 
+// Event Listeners
+// Category - Event Listeners
+addCategoryBtn.addEventListener("click", createNewCategory);
+categoryListEl.addEventListener("click", (event) => {
+  if (event.target.tagName === "LI") {
+    displayCategoryUrls(extractFirstLine(event.target.textContent));
+  }
+});
+categoryInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") createNewCategory();
+});
+
+// URL - Event Listeners
+urlListEl.addEventListener("click", handleUrlClick);
+fetchTabBtn.addEventListener("click", fetchActiveTab);
+saveUrlBtn.addEventListener("click", addNewUrl);
+backBtn.addEventListener("click", toggleCategoryView);
+
+// Initialize App
 initializeApp();
