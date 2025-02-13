@@ -8,6 +8,7 @@ import {
   retreiveURLsFromLocalStorage,
   findCategoryIndex,
   extractFirstLine,
+  isUniqueUrlTitle,
 } from "./utils.js";
 
 // Input fields
@@ -93,7 +94,7 @@ function deleteCategory(categoryName) {
  * Handles adding a new URL
  */
 function addNewUrl() {
-  let titleInput = urltitleInputEl.value;
+  let titleInput = urltitleInputEl.value.trim();
   let urlInput = urlInputEl.value;
   let activeCategory = extractFirstLine(categoryHeading.textContent);
   let storedUrls = retreiveURLsFromLocalStorage(activeCategory);
@@ -109,6 +110,8 @@ function addNewUrl() {
     console.log("Invalid Url");
     return;
   }
+
+  if (!isUniqueUrlTitle(storedUrls, titleInput)) return;
 
   urltitleInputEl.value = "";
   urlInputEl.value = "";
@@ -153,22 +156,23 @@ function handleUrlClick(event) {
     }
     isEditingUrl = true;
 
-    // Create input fields and Save and Delete buttons for editing
+    // Generate input fields and action buttons (Save & Delete) for URL editing
     createEditUrlFields(clickedUrl);
 
-    const urlTitle = clickedUrl.querySelector("#edit-url-title");
-    const url = clickedUrl.querySelector("#edit-url");
+    const urlTitleField = clickedUrl.querySelector("#edit-url-title");
+    const urlField = clickedUrl.querySelector("#edit-url");
     const saveEditedUrlBtn = clickedUrl.querySelector("#save-updated-url-btn");
     const cancelEditedUrlBtn = clickedUrl.querySelector("#cancel-update-url");
 
     // Populate input fields with existing URL details
-    urlTitle.value = storedUrls[urlIndex][0];
-    url.value = storedUrls[urlIndex][1];
+    urlTitleField.value = storedUrls[urlIndex][0];
+    urlField.value = storedUrls[urlIndex][1];
 
     // Save the updated URL details
     saveEditedUrlBtn.addEventListener("click", () => {
+      if (!isUniqueUrlTitle(storedUrls, urlTitleField.value)) return;
       isEditingUrl = false; //Reset flag after saving
-      storedUrls[urlIndex] = [urlTitle.value, url.value];
+      storedUrls[urlIndex] = [urlTitleField.value, urlField.value];
       addUrlToLocalStorage(activeCategory, storedUrls);
       renderCategoryUrls(activeCategory, urlListEl);
     });

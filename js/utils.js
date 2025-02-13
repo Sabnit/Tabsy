@@ -85,6 +85,18 @@ export function addUrlToLocalStorage(categoryName, urlArray) {
   );
 }
 
+// Extracts the first line from a given text after trimming whitespace
 export function extractFirstLine(text) {
   return text.trim().split("\n")[0];
+}
+
+// Check unique url title from urls
+export function isUniqueUrlTitle(urls, title) {
+  for (let i = 0; i < urls.length; i++) {
+    if (urls[i].includes(title)) {
+      console.log("same url title exists");
+      return false; // title exists
+    }
+  }
+  return true; // title is unique
 }
